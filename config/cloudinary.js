@@ -9,5 +9,16 @@ cloudinary.config({
     api_secret:process.env.CLOUDINARY_API_SECRET
 })
 
+//Deleting image from cloudinary function
+
+export const deleteImage = async (publicId) => {
+    try {
+        const result = await cloudinary.uploader.destroy(publicId);
+        return result;
+    } catch (error) {
+        throw new Error('Failed to Delete Image From Cloudinary' + error.message)
+    }
+}
+
 
 export default cloudinary
