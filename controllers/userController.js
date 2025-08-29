@@ -3,6 +3,7 @@ import { generateToken } from "../utils/generateToken.js";
 import { sendResponse } from "../utils/response.js";
 import { izelTemplate, sendEmail } from "../utils/genrateEmail.js";
 import { generateOTP } from "../utils/generateOTP.js";
+import { resolveHostname } from "nodemailer/lib/shared/index.js";
 
 //Register User
 
@@ -84,8 +85,25 @@ const login = async (req, res) => {
     }
 }
 
+//logout
+
+const logout = async (req, res) => {
+    try {
+        res.clearCookie('token', {
+            httpOnly: true,
+            secure: true,
+            sameSite: 'None',
+        })
+        sendResponse(res,200,true,'Token cleared Successfully')
+    } catch (error) {
+        return sendResponse(res, 500, false, error.message)
+
+    }
+}
+
 export default {
     registration,
     otpVerification,
-    login
+    login,
+    logout
 };

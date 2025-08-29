@@ -6,6 +6,7 @@ const router = express.Router();
 router.post('/signup',userController.registration)
 router.post('/verify',userController.otpVerification)
 router.post('/login',userController.login)
+router.post('/logout',userController.logout)
 
 
 

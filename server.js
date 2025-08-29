@@ -6,7 +6,8 @@ import cookieParser from 'cookie-parser'
 
 //routes importing
 
-import userRoutes from './routes/userRoute.js'
+import userRoute from './routes/userRoute.js'
+import productRoute from './routes/productRoute.js'
 
 dotenv.config()
 connectDB()
@@ -19,7 +20,9 @@ app.get('/', (req, res) => {
     res.send('Hai From iZEL Studio')
 })
 
-app.use('/user',userRoutes)
+app.use('/user',userRoute)
+app.use('/product',productRoute)
+
 
 const PORT = process.env.PORT
 
