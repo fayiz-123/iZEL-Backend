@@ -3,7 +3,6 @@ import { generateToken } from "../utils/generateToken.js";
 import { sendResponse } from "../utils/response.js";
 import { izelTemplate, sendEmail } from "../utils/genrateEmail.js";
 import { generateOTP } from "../utils/generateOTP.js";
-import { resolveHostname } from "nodemailer/lib/shared/index.js";
 
 //Register User
 
@@ -28,7 +27,8 @@ const registration = async (req, res) => {
             if (!emailToUser) {
                 return sendResponse(res, 400, false, 'Failed to sent OTP')
             }
-            return sendResponse(res, 200, true, 'OTP Sent Successfully', savedUser)
+            const cleanUser = await User.findById(savedUser._id).select('-otp')
+            return sendResponse(res, 200, true, 'OTP Sent Successfully', cleanUser)
         }
     } catch (error) {
         return sendResponse(res, 500, false, error.message)
@@ -48,10 +48,40 @@ const otpVerification = async (req, res) => {
             return sendResponse(res, 400, false, 'Invalid Otp or Email')
         }
         user.otp = null;
+        user.isVerified = true;
         await user.save();
-        return sendResponse(res, 200, true, "Email Verified Successfully", user)
+        return sendResponse(res, 200, true, "Email Verified Successfully")
     } catch (error) {
         return sendResponse(res, 500, false, error.message)
+    }
+}
+
+//resend OTP 
+
+const resendOtp = async (req, res) => {
+    try {
+        const { email } = req.body;
+        if (!email) {
+            return sendResponse(res, 400, false, 'Email is required')
+        }
+        const user = await User.findOne({email})
+        if(!user){
+           return sendResponse(res,400,false,'User Not Found')
+        }
+        const otp = generateOTP()
+        user.otp = otp;
+        await user.save();
+         const emailToUser = await sendEmail(email,
+            "Your OTP Code - Izel Design Studio",
+            izelTemplate(user.name, "Your OTP Code - Izel Design Studio",
+                `Here is your OTP: <b>${otp}</b>. It will expire in 5 minutes.`))
+        if (!emailToUser) {
+            return sendResponse(res, 400, false, 'Failed to sent OTP')
+        }
+        return sendResponse(res,200,true,'New OTP sent successfully')
+    } catch (error) {
+        return sendResponse(res, 500, false, error.message)
+
     }
 }
 
@@ -67,15 +97,19 @@ const login = async (req, res) => {
         if (!user) {
             return sendResponse(res, 400, false, 'User Not Found')
         }
+        if (!user.isVerified) {
+            return sendResponse(res, 400, false, 'User not Verified,Please Verify')
+        }
         if (user && (await user.matchPassword(password))) {
-            const token = generateToken(user.id)
+            const token = generateToken(user.id, user.role)
             res.cookie('token', token, {
                 httpOnly: true,
                 secure: true,
                 sameSite: 'None',
                 maxAge: 24 * 60 * 60 * 1000, // 1 Day
             })
-            return sendResponse(res, 200, true, 'LogIn Successfull', user, token)
+            const { otp, ...userData } = user._doc;
+            return sendResponse(res, 200, true, 'LogIn Successfull', userData, token)
         }
         return sendResponse(res, 401, false, 'Password is Incorrect')
 
@@ -89,12 +123,16 @@ const login = async (req, res) => {
 
 const logout = async (req, res) => {
     try {
+        const token = req.cookies.token;
+        if (!token) {
+            return sendResponse(res, 403, false, 'No token Found')
+        }
         res.clearCookie('token', {
             httpOnly: true,
             secure: true,
             sameSite: 'None',
         })
-        sendResponse(res,200,true,'Token cleared Successfully')
+        return sendResponse(res, 200, true, 'Token cleared Successfully')
     } catch (error) {
         return sendResponse(res, 500, false, error.message)
 
@@ -104,6 +142,7 @@ const logout = async (req, res) => {
 export default {
     registration,
     otpVerification,
+    resendOtp,
     login,
     logout
 };

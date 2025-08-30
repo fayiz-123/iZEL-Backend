@@ -19,10 +19,10 @@ export const sendEmail = async (to, subject, htmlContent) => {
       html: htmlContent, 
     });
 
-    console.log("✅ Email Sent Successfully");
+    console.log("Email Sent Successfully");
     return true;
   } catch (error) {
-    console.log("❌ Error sending Email", error);
+    console.log("Error sending Email", error);
     return false;
   }
 };
