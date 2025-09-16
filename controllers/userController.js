@@ -64,21 +64,21 @@ const resendOtp = async (req, res) => {
         if (!email) {
             return sendResponse(res, 400, false, 'Email is required')
         }
-        const user = await User.findOne({email})
-        if(!user){
-           return sendResponse(res,400,false,'User Not Found')
+        const user = await User.findOne({ email })
+        if (!user) {
+            return sendResponse(res, 400, false, 'User Not Found')
         }
         const otp = generateOTP()
         user.otp = otp;
         await user.save();
-         const emailToUser = await sendEmail(email,
+        const emailToUser = await sendEmail(email,
             "Your OTP Code - Izel Design Studio",
             izelTemplate(user.name, "Your OTP Code - Izel Design Studio",
                 `Here is your OTP: <b>${otp}</b>. It will expire in 5 minutes.`))
         if (!emailToUser) {
             return sendResponse(res, 400, false, 'Failed to sent OTP')
         }
-        return sendResponse(res,200,true,'New OTP sent successfully')
+        return sendResponse(res, 200, true, 'New OTP sent successfully')
     } catch (error) {
         return sendResponse(res, 500, false, error.message)
 
@@ -119,6 +119,21 @@ const login = async (req, res) => {
     }
 }
 
+// Profile
+
+const profile = async (req, res) => {
+    try {
+        const { id } = req.user
+        const profile = await User.findById(id)
+        if (!profile) {
+            return sendResponse(res, 401, false, 'User Not Found')
+        }
+        return sendResponse(res, 200, true, 'User Founded', profile)
+    } catch (error) {
+        return sendResponse(res, 500, false, error.message)
+    }
+}
+
 //logout
 
 const logout = async (req, res) => {
@@ -144,5 +159,6 @@ export default {
     otpVerification,
     resendOtp,
     login,
+    profile,
     logout
 };
