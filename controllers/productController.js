@@ -33,7 +33,7 @@ const createProduct = async (req, res) => {
 
 const getProducts = async (req, res) => {
     try {
-        const allProducts = await Product.find()
+        const allProducts = await Product.find().sort({createdAt:-1})
         if (!allProducts) {
             return sendResponse(res, 400, false, 'No Products Found')
         }
