@@ -29,15 +29,30 @@ const createProduct = async (req, res) => {
     }
 }
 
-//get product
+//get product with pagination
 
 const getProducts = async (req, res) => {
     try {
-        const allProducts = await Product.find().sort({createdAt:-1})
+        const page = parseInt(req.query.page) || 1;
+        const limit = parseInt(req.query.limit) || 5;
+        const skip = (page - 1) * limit;
+
+        const allProducts = await Product.find()
+        .sort({createdAt:-1})
+        .limit(limit)
+        .skip(skip)
+
         if (!allProducts) {
             return sendResponse(res, 400, false, 'No Products Found')
         }
-        return sendResponse(res, 200, true, 'Products Found', allProducts)
+
+        const totalProducts = await Product.countDocuments()
+        return sendResponse(res, 200, true, 'Products Found', {
+            products:allProducts,
+            totalProducts,
+            page,
+            pages:Math.ceil(totalProducts/limit)
+        })
     } catch (error) {
         return sendResponse(res, 500, false, error.message)
     }
