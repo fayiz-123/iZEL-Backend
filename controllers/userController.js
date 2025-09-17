@@ -45,7 +45,7 @@ const otpVerification = async (req, res) => {
         }
         const user = await User.findOne({ email })
         if (!user || user?.otp !== otp) {
-            return sendResponse(res, 400, false, 'Invalid Otp or Email')
+            return sendResponse(res, 400, false, 'Invalid Otp')
         }
         user.otp = null;
         user.isVerified = true;
