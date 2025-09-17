@@ -14,7 +14,11 @@ const registration = async (req, res) => {
         }
         const user = await User.findOne({ email })
         if (user) {
-            return sendResponse(res, 401, false, 'User Already Exist')
+            if(!user.isVerified){
+                return sendResponse(res,401,false,'User Already Exist,Please Verify')
+            } else{
+                return sendResponse(res, 401, false, 'User Already Exist')
+            }       
         }
         else {
             const otp = generateOTP();
@@ -109,7 +113,25 @@ const login = async (req, res) => {
                 maxAge: 24 * 60 * 60 * 1000, // 1 Day
             })
             const { otp, ...userData } = user._doc;
-            return sendResponse(res, 200, true, 'LogIn Successfull', userData, token)
+            sendResponse(res, 200, true, 'LogIn Successfull', userData, token)
+            if (user.isFirstLoggedIn) {
+                sendEmail(
+                    email,
+                    "Welcome to the Izel Family 🎉",
+                    izelTemplate(
+                        user.name,
+                        "We’re thrilled to have you on board!",
+                        `Thank you for joining the Izel Family.  
+     We look forward to being part of your journey and sharing our latest collections, offers, and updates with you.  
+     Stay tuned — exciting things are coming your way!`
+                    )
+                );
+            }
+
+            user.isFirstLoggedIn = false;
+            await user.save();
+            return;
+
         }
         return sendResponse(res, 401, false, 'Password is Incorrect')
 

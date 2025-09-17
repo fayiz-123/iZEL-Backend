@@ -30,6 +30,10 @@ const userSchema = new mongoose.Schema({
     isVerified: {
         type: Boolean,
         default: false
+    },
+    isFirstLoggedIn:{
+        type:Boolean,
+        default:true
     }
 }, { timestamps: true })
 
