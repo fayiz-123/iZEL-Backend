@@ -1,7 +1,6 @@
 import User from "../models/userModel.js";
 import { generateToken } from "../utils/generateToken.js";
 import { sendResponse } from "../utils/response.js";
-import { izelTemplate, sendEmail } from "../utils/genrateEmail.js";
 import { generateOTP } from "../utils/generateOTP.js";
 import { firstLoginMail, otpMail, roleMail } from "../utils/Emails.js";
 
