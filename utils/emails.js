@@ -15,6 +15,7 @@ export const firstLoginMail = async (email, name) => {
      Stay tuned — exciting things are coming your way!`))
 }
 
+
 export const roleMail = async (to, name, role) => {
     await sendEmail(to, "Your Role Has Been Updated – Izel Design Studio",
         izelTemplate(name, "Your Account Role Has Been Updated",
