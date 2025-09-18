@@ -36,11 +36,3 @@ const PORT = process.env.PORT
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
 })
-
-
-///When using Cors cookies credentials should be written
-///When using Cors cookies credentials should be written
-///When using Cors cookies credentials should be written
-///When using Cors cookies credentials should be written
-///When using Cors cookies credentials should be written
-///When using Cors cookies credentials should be written
