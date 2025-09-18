@@ -11,7 +11,7 @@ router.post('/login',userController.login)
 router.get('/me',verifyToken,userController.profile)
 router.post('/logout',userController.logout)
 
-//Chnaging role API
+//Changing role API
 router.put('/role',verifyToken,isAdmin,userController.roleChange)
 
 

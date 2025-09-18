@@ -74,13 +74,9 @@ const resendOtp = async (req, res) => {
         const otp = generateOTP()
         user.otp = otp;
         await user.save();
-        const emailToUser = await sendEmail(email,
-            "Your OTP Code - Izel Design Studio",
-            izelTemplate(user.name, "Your OTP Code - Izel Design Studio",
-                `Here is your OTP: <b>${otp}</b>. It will expire in 5 minutes.`))
-        if (!emailToUser) {
-            return sendResponse(res, 400, false, 'Failed to sent OTP')
-        }
+        otpMail(email,otp,user.name).catch((err)=>{
+            console.log("Error sending OTP mail:", err);
+        })
         return sendResponse(res, 200, true, 'New OTP sent successfully')
     } catch (error) {
         return sendResponse(res, 500, false, error.message)
