@@ -1,6 +1,6 @@
 import express from "express";
 import userController from "../controllers/userController.js";
-import verifyToken from "../middlewares/authMiddleware.js";
+import verifyToken, { isAdmin } from "../middlewares/authMiddleware.js";
 
 const router = express.Router();
 
@@ -10,6 +10,9 @@ router.put('/resend-otp',userController.resendOtp)
 router.post('/login',userController.login)
 router.get('/me',verifyToken,userController.profile)
 router.post('/logout',userController.logout)
+
+//Chnaging role API
+router.put('/role',verifyToken,isAdmin,userController.roleChange)
 
 
 

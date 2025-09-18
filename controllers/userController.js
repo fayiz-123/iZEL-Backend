@@ -3,34 +3,33 @@ import { generateToken } from "../utils/generateToken.js";
 import { sendResponse } from "../utils/response.js";
 import { izelTemplate, sendEmail } from "../utils/genrateEmail.js";
 import { generateOTP } from "../utils/generateOTP.js";
+import { firstLoginMail, otpMail, roleMail } from "../utils/Emails.js";
 
 //Register User
 
 const registration = async (req, res) => {
     try {
-        const { name, email, phone, password, role } = req.body;
+        const { name, email, phone, password } = req.body;
         if (!email || !name || !password) {
             return sendResponse(res, 400, false, 'Details are required')
         }
         const user = await User.findOne({ email })
         if (user) {
-            if(!user.isVerified){
-                return sendResponse(res,401,false,'User Already Exist,Please Verify')
-            } else{
+            if (!user.isVerified) {
+                return sendResponse(res, 401, false, 'User Already Exist,Please Verify')
+            } else {
                 return sendResponse(res, 401, false, 'User Already Exist')
-            }       
+            }
         }
         else {
             const otp = generateOTP();
-            const newUser = new User({ name: name, email: email, phone: phone, password: password, otp: otp, role: role })
+            const newUser = new User({ name: name, email: email, phone: phone, password: password, otp: otp })
             const savedUser = await newUser.save()
-            const emailToUser = await sendEmail(email,
-                "Your OTP Code - Izel Design Studio",
-                izelTemplate(name, "Your OTP Code - Izel Design Studio",
-                    `Here is your OTP: <b>${otp}</b>. It will expire in 5 minutes.`))
-            if (!emailToUser) {
-                return sendResponse(res, 400, false, 'Failed to sent OTP')
-            }
+            //mail
+            otpMail(email, otp, name).catch((err)=>{
+                console.log("Error sending OTP mail:", err);
+            })
+            //removing the otp from response
             const cleanUser = await User.findById(savedUser._id).select('-otp')
             return sendResponse(res, 200, true, 'OTP Sent Successfully', cleanUser)
         }
@@ -115,17 +114,8 @@ const login = async (req, res) => {
             const { otp, ...userData } = user._doc;
             sendResponse(res, 200, true, 'LogIn Successfull', userData, token)
             if (user.isFirstLoggedIn) {
-                sendEmail(
-                    email,
-                    "Welcome to the Izel Family 🎉",
-                    izelTemplate(
-                        user.name,
-                        "We’re thrilled to have you on board!",
-                        `Thank you for joining the Izel Family.  
-     We look forward to being part of your journey and sharing our latest collections, offers, and updates with you.  
-     Stay tuned — exciting things are coming your way!`
-                    )
-                );
+                //email
+                firstLoginMail(user.email, user.name)
             }
 
             user.isFirstLoggedIn = false;
@@ -176,11 +166,42 @@ const logout = async (req, res) => {
     }
 }
 
+
+
+//changing role
+
+const roleChange = async (req, res) => {
+    try {
+        const { email, role } = req.body;
+        if (!email || !role) {
+            return sendResponse(res, 400, false, 'Email and role is required')
+        }
+        const user = await User.findOne({ email })
+        if (!user) {
+            return sendResponse(res, 404, false, 'User Not Found')
+        }
+        if (user.role === role) {
+            return sendResponse(res, 400, false, `Role is Already ${role}`)
+        }
+        user.role = role;
+        await user.save();
+        sendResponse(res, 200, true, 'Role Changed Succesfully')
+        //mail
+        roleMail(user.email, user.name, user.role).catch((err) =>
+            console.error("Failed to send role update email:", err)
+        );
+
+    } catch (error) {
+        return sendResponse(res, 500, false, error.message)
+    }
+}
+
 export default {
     registration,
     otpVerification,
     resendOtp,
     login,
     profile,
-    logout
+    logout,
+    roleChange
 };
