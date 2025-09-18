@@ -1,5 +1,5 @@
-import { sendEmail } from "./genrateEmail.js"
-import { izelTemplate } from "./genrateEmail.js"
+import { sendEmail } from "./generateEmail.js"
+import { izelTemplate } from "./generateEmail.js"
 
 export const otpMail = async (email, otp, name) => {
     await sendEmail(email, "Your OTP Code - Izel Design Studio",

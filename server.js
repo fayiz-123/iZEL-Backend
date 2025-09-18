@@ -23,8 +23,8 @@ app.use(
   })
 );
 
-app.get('/', (req, res) => {
-    res.send('Hai From iZEL Studio')
+app.get('/health', (req,res) => {
+    res.send('Server is Healthy')
 })
 
 app.use('/user',userRoute)
