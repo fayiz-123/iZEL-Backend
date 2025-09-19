@@ -20,10 +20,16 @@ export const sendEmail = async (to, subject, htmlContent) => {
     console.log("✅ Email Sent Successfully to", to);
     return true;
   } catch (error) {
-    console.error("❌ Error sending Email:", error.message);
-    return false;
+  console.error("❌ Error sending Email:");
+  console.error("Message:", error.message);
+  console.error("Stack:", error.stack);
+  if (error.code) console.error("Code:", error.code);
+  if (error.response) console.error("SMTP Response:", error.response);
+  if (error.command) console.error("Command:", error.command);
+  return false;
+}
+
   }
-};
 
 // ----------- Reusable Email Template for Izel -----------
 export const izelTemplate = (customerName, title, message) => `
