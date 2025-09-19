@@ -3,12 +3,15 @@ import nodemailer from "nodemailer";
 export const sendEmail = async (to, subject, htmlContent) => {
   try {
     const transporter = nodemailer.createTransport({
-      service: "gmail",
+      host: "smtp.gmail.com",
+      port: 587,           // 465 if you want SSL
+      secure: false,       // true for port 465, false for port 587
       auth: {
         user: process.env.EMAIL,
         pass: process.env.APP_PASS,
       },
     });
+
 
     await transporter.sendMail({
       from: `"Izel Design Studio" <${process.env.EMAIL}>`,
@@ -20,16 +23,16 @@ export const sendEmail = async (to, subject, htmlContent) => {
     console.log("✅ Email Sent Successfully to", to);
     return true;
   } catch (error) {
-  console.error("❌ Error sending Email:");
-  console.error("Message:", error.message);
-  console.error("Stack:", error.stack);
-  if (error.code) console.error("Code:", error.code);
-  if (error.response) console.error("SMTP Response:", error.response);
-  if (error.command) console.error("Command:", error.command);
-  return false;
-}
-
+    console.error("❌ Error sending Email:");
+    console.error("Message:", error.message);
+    console.error("Stack:", error.stack);
+    if (error.code) console.error("Code:", error.code);
+    if (error.response) console.error("SMTP Response:", error.response);
+    if (error.command) console.error("Command:", error.command);
+    return false;
   }
+
+}
 
 // ----------- Reusable Email Template for Izel -----------
 export const izelTemplate = (customerName, title, message) => `
