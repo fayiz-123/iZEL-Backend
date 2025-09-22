@@ -18,7 +18,7 @@ app.use(express.json())
 app.use(cookieParser())
 app.use(
   cors({
-    origin: "http://localhost:5173", // or React dev server port
+    origin: process.env.FRONTEND_URL, // or React dev server port
     credentials: true,
   })
 );
