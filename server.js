@@ -9,6 +9,7 @@ import cors from 'cors'
 
 import userRoute from './routes/userRoute.js'
 import productRoute from './routes/productRoute.js'
+import adminRoute from './routes/adminRoute.js'
 
 dotenv.config()
 connectDB()
@@ -29,6 +30,7 @@ app.get('/health', (req,res) => {
 
 app.use('/user',userRoute)
 app.use('/product',productRoute)
+app.use('/admin',adminRoute)
 
 
 const PORT = process.env.PORT
