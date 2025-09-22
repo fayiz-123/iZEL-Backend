@@ -7,11 +7,26 @@ import { sendResponse } from "../utils/response.js";
 
 const allUsers = async (req, res) => {
     try {
-       const users = await User.find().select('-otp -password').sort({createdAt : -1})
-       if(!users || users.length === 0){
-        return sendResponse(res,404,false,'Users Not Found')
-       }
-       return sendResponse(res,200,true,'Users Found',users)
+        const page = parseInt(req.query.page) || 1;
+        const limit = parseInt(req.query.limit) || 5;
+        const skip = (page - 1) * limit
+        const users = await User.find()
+            .select('-otp -password')
+            .sort({ createdAt: -1 })
+            .limit(limit)
+            .skip(skip)
+
+        if (!users || users.length === 0) {
+            return sendResponse(res, 404, false, 'Users Not Found')
+        }
+        const totalUsers = await User.countDocuments() 
+        return sendResponse(res, 200, true, 'Users Found', {
+            users:users,
+            totalUsers:totalUsers,
+            page,
+            pages:Math.ceil(totalUsers/limit)
+
+        })
     } catch (error) {
         return sendResponse(res, 500, false, error.message)
     }
