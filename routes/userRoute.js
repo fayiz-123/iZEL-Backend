@@ -11,9 +11,6 @@ router.post('/login',userController.login)
 router.get('/me',verifyToken,userController.profile)
 router.post('/logout',userController.logout)
 
-//Changing role API
-router.put('/role',verifyToken,isAdmin,userController.roleChange)
-
 
 
 export default router;
