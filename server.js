@@ -10,6 +10,8 @@ import cors from 'cors'
 import userRoute from './routes/userRoute.js'
 import productRoute from './routes/productRoute.js'
 import adminRoute from './routes/adminRoute.js'
+import subScriptionRoute from './routes/subscriptionRoute.js'
+import notificationRoute from './routes/notificationRoute.js'
 
 dotenv.config()
 connectDB()
@@ -31,6 +33,8 @@ app.get('/health', (req,res) => {
 app.use('/user',userRoute)
 app.use('/product',productRoute)
 app.use('/admin',adminRoute)
+app.use('/subscription',subScriptionRoute)
+app.use('/notification',notificationRoute)
 
 
 const PORT = process.env.PORT
